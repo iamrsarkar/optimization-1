@@ -53,13 +53,6 @@ def augment_inventory_with_metrics(
     if inventory.empty:
         return inventory
 
-    required_cols = {"Warehouse", "Product_Category", "Stock_Level", "Reorder_Level"}
-    missing = required_cols - set(inventory.columns)
-    if missing:
-        # Gracefully handle schema issues by creating placeholder columns
-        for col in missing:
-            inventory[col] = 0 if col != "Warehouse" else "Unknown"
-
     demand_summary = demand_summary.copy()
     demand_summary.rename(columns={"Demand_Value": "Demand_Value_INR"}, inplace=True)
 

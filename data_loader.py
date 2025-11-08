@@ -69,38 +69,6 @@ def _clean_common_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def _normalize_schema(dataset_name: str, df: pd.DataFrame) -> pd.DataFrame:
-    """Align dataset-specific column names and types used across the app."""
-
-    if df.empty:
-        return df
-
-    df = df.copy()
-
-    if dataset_name == "warehouse_inventory":
-        rename_map = {
-            "Location": "Warehouse",
-            "Current_Stock_Units": "Stock_Level",
-            "Storage_Cost_per_Unit": "Storage_Cost_INR_per_unit",
-        }
-        df.rename(columns=rename_map, inplace=True)
-
-        # Ensure essential columns exist even if the source schema changes slightly
-        if "Warehouse" not in df.columns and "Warehouse_ID" in df.columns:
-            df["Warehouse"] = df["Warehouse_ID"].astype(str)
-
-        numeric_cols = [
-            "Stock_Level",
-            "Reorder_Level",
-            "Storage_Cost_INR_per_unit",
-        ]
-        for col in numeric_cols:
-            if col in df.columns:
-                df[col] = pd.to_numeric(df[col], errors="coerce")
-
-    return df
-
-
 @st.cache_data(show_spinner=False)
 def load_all_data(data_dir: str = ".") -> Dict[str, pd.DataFrame]:
     """Load all CSV datasets required for the logistics analytics app.
@@ -133,7 +101,6 @@ def load_all_data(data_dir: str = ".") -> Dict[str, pd.DataFrame]:
         df = _standardize_columns(df)
         df = _coerce_dates(df)
         df = _clean_common_columns(df)
-        df = _normalize_schema(name, df)
         data[name] = df
 
     return data
