@@ -1,61 +1,58 @@
-# NexGen Logistics Warehouse Optimization Suite
+# NexGen Logistics – Warehouse Optimization Tool
 
-A Streamlit-based analytics and optimization application built for **NexGen Logistics Pvt. Ltd.** to unlock inventory insights, rebalance stock intelligently, and control logistics cost.
+## Case Study Summary
+NexGen Logistics Pvt. Ltd. operates a multi-warehouse distribution network across India with links to Singapore, Dubai, Hong Kong, and Bangkok. The business processes 200+ orders monthly across categories such as Electronics, Fashion, Food & Beverage, Healthcare, Industrial goods, Books, and Home Goods. Operations rely on five warehouses (Mumbai, Delhi, Bangalore, Chennai, Kolkata), a mixed fleet of 50 vehicles, and several carrier partners serving enterprise, SMB, and individual customers with Express, Standard, and Economy priorities.
 
-## 🚀 Features
-- Unified data ingestion of seven operational datasets with caching and cleaning.
-- Business KPI cockpit with demand trends and moving-average demand forecasting.
-- Inventory health analytics with understock/overstock detection, interactive visuals, and CSV exports.
-- Transfer and reorder recommendations with optional PuLP-based optimization.
-- Cost and sustainability dashboard including CO₂ intelligence and customer feedback snapshot.
+## Problem Focus
+This project delivers **Option 6 – Warehouse Optimization Tool**, enabling planners to rebalance inventory, monitor demand, and manage cost/service risks across the network. The Streamlit application combines all seven datasets to analyse demand, delivery performance, costs, inventory health, and customer sentiment.
 
-## 📂 Project Structure
+## Application Pages
+1. **Overview & KPIs** – Network-wide metrics, orders over time, origin/category mix, and on-time performance.
+2. **Warehouse Inventory & Demand EDA** – Filterable warehouse/product analysis, heatmaps, demand vs stock charts, and top over/under-stocked combinations.
+3. **Warehouse Optimization** – Configurable safety stock and demand window, heuristic/LP transfer planning, and reorder recommendations with downloads.
+4. **Cost & Risk Insights** – Cost component decomposition and narrative guidance for balancing carrying cost and stock-out risk.
+5. **Customer & Service View** – Customer feedback summary and rating vs delay correlations.
+
+## Project Structure
 ```
-.
-├── app.py                  # Streamlit application entry point
-├── config.py               # Global configuration parameters
-├── data_loader.py          # Data ingestion & preprocessing helpers
-├── eda_utils.py            # KPI calculations, filtering, and forecasting
-├── viz_utils.py            # Plotly visualization builders
-├── warehouse_optimizer.py  # Transfer heuristics & linear programming model
-├── requirements.txt        # Python dependencies
-├── README.md               # Project overview & setup guide
-└── innovation_brief.md     # Business impact summary
+app.py                     # Streamlit entry point
+analysis_utils.py          # Shared filters and demand/inventory aggregation
+config.py                  # Constants and model parameters
+customer_feedback.csv      # Provided dataset
+cost_breakdown.csv         # Provided dataset
+data_loader.py             # Dataset loading/cleaning and master order creation
+delivery_performance.csv   # Provided dataset
+eda_utils.py               # Exploratory analysis helpers
+innovation_brief.md        # Business brief summarising approach and impact
+orders.csv                 # Provided dataset
+routes_distance.csv        # Provided dataset
+vehicle_fleet.csv          # Provided dataset
+viz_utils.py               # Plotly visualisations
+warehouse_inventory.csv    # Provided dataset
+warehouse_optimizer.py     # Optimization logic and outputs
+requirements.txt           # Python dependencies
+analysis_report.md         # Detailed analytical findings
 ```
 
-## 🛠️ Installation
-1. Create and activate a virtual environment (optional but recommended).
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows use .venv\Scripts\activate
-   ```
-2. Install dependencies.
-   ```bash
-   pip install -r requirements.txt
-   ```
+## Installation
+```bash
+pip install -r requirements.txt
+```
 
-## ▶️ Usage
-Run the Streamlit application from the project root:
+## Running the App
 ```bash
 streamlit run app.py
 ```
-The dashboard automatically loads the CSV datasets bundled with the project.
 
-## 📈 Data Sources
-- `orders.csv`
-- `delivery_performance.csv`
-- `routes_distance.csv`
-- `vehicle_fleet.csv`
-- `warehouse_inventory.csv`
-- `customer_feedback.csv`
-- `cost_breakdown.csv`
+## Key Assumptions
+- Distances between warehouses follow an approximate road-distance matrix encoded in `config.py`; a 1,500 km default is used when specific values are unavailable.
+- Transfer cost is estimated as distance × 2.5 INR per unit. Shortage penalty in the LP model is set to 150 INR per unit to prioritise service.
+- Demand is estimated from historical order counts (orders treated as single units due to missing quantity data) within a selectable lookback window. Safety stock defaults to 14 days of demand.
+- Vehicle assignment per order is not available; fleet insights are descriptive only.
 
-## 🧠 Optimization Notes
-- Heuristic transfer planning balances surplus and deficit warehouses per product using inter-city road distances.
-- Optional PuLP optimization minimizes combined transfer and storage cost when PuLP is installed.
+## Interpreting Optimization Outputs
+- **Transfer Plan**: Recommended intra-network rebalancing moves with estimated logistics cost and expected holding-cost relief. Execute moves prioritising highest relief vs. cost ratios.
+- **Reorder Recommendations**: When stock cover drops below reorder or safety thresholds, the tool estimates units required to reach the target stock level.
+- **Metrics Bar**: Highlights surplus/deficit combinations, total transfer cost, and potential reduction in tied-up capital.
 
-## 🤝 Contributions
-Contributions and enhancements are welcome via pull requests. Please ensure code is well-documented and tested.
-
-## 📄 License
-This project is created for the NexGen Logistics case study scenario and is released without a formal license.
+Use the filters to focus on specific warehouses or categories, iterate on safety stock assumptions, and export CSV plans for operational execution.
