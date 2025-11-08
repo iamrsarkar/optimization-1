@@ -53,43 +53,8 @@ def augment_inventory_with_metrics(
     if inventory.empty:
         return inventory
 
-    alias_map = {
-        "Warehouse": ["Warehouse", "Location", "warehouse", "location"],
-        "Product_Category": ["Product_Category", "Product", "Category"],
-        "Stock_Level": ["Stock_Level", "Current_Stock_Units", "stock_level"],
-        "Reorder_Level": ["Reorder_Level", "reorder_level"],
-        "Storage_Cost_INR_per_unit": [
-            "Storage_Cost_INR_per_unit",
-            "Storage_Cost_per_Unit",
-            "storage_cost_inr_per_unit",
-        ],
-    }
-
-    for canonical, candidates in alias_map.items():
-        if canonical not in inventory.columns:
-            for candidate in candidates:
-                if candidate in inventory.columns:
-                    inventory[canonical] = inventory[candidate]
-                    break
-        if canonical not in inventory.columns:
-            if "Cost" in canonical or "Level" in canonical:
-                inventory[canonical] = 0
-            else:
-                inventory[canonical] = "Unknown"
-
     demand_summary = demand_summary.copy()
     demand_summary.rename(columns={"Demand_Value": "Demand_Value_INR"}, inplace=True)
-
-    if "Warehouse" not in demand_summary.columns:
-        for candidate in ("Origin", "warehouse", "Warehouse_ID"):
-            if candidate in demand_summary.columns:
-                demand_summary.rename(columns={candidate: "Warehouse"}, inplace=True)
-                break
-    if "Product_Category" not in demand_summary.columns:
-        for candidate in ("Product", "Category"):
-            if candidate in demand_summary.columns:
-                demand_summary.rename(columns={candidate: "Product_Category"}, inplace=True)
-                break
 
     inventory = inventory.merge(
         demand_summary,
